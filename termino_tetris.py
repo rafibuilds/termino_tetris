@@ -1,7 +1,7 @@
 import curses # The main module needed for this game to work
 import time # Time related functions for the smooth animation of the game
 import random # Randomizing element
-import sys
+import sys # System control
 import copy # To copy the 2d list effectively
 
 # Game Constants
@@ -38,7 +38,7 @@ SHAPES = [
 LEVEL = 0.28
 
 def create_new_block(shapes):
-    '''Generates a shape and color for the block RANDOMLY'''
+    ''' Generates a shape and color for the block RANDOMLY '''
     # Initialize the colors. 0 is reserved for black and white color pair
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
@@ -67,7 +67,7 @@ def draw_score(window, score):
     '''Draws the score board for the game'''
     height, width = window.getmaxyx()
     scr_text = f"Score: {score}"
-    y, x = (height // 2, width // 2 - len(scr_text) // 2)
+    y, x = (height // 2), (width // 2 - len(scr_text) // 2)
     window.addstr(y, x, scr_text)
 
 def draw_instruction(window):
@@ -159,7 +159,18 @@ def score_and_clear(board, score):
     return score, board
 
 def is_board_full(board):
-    ...
+    '''Returns a bool whether the board is filled with blocks or not'''
+    if all(item[0] == BOARD_CHAR for item in board[0]):
+        return False
+    else:
+        if not colliding(board, block, blocky, blockx):
+            board = draw_block(board, block, blocky, blockx, color)
+            if all(item[0] == BOARD_CHAR for item in board[0]):
+                return False
+            else:
+                return True
+        else:
+            return True
 
 def main(stdscr):
     '''The preparatory part of the game'''
@@ -214,12 +225,16 @@ def main(stdscr):
             if board_list_copy:
                 board_list = copy.deepcopy(board_list_copy)
 
-            if not colliding(board_list, block, y, x):
-                # Draw the block on the board_list
-                board_list = draw_block(board_list, block, y, x, block_color)
-            elif colliding(board_list, block, y, x):
-                board_list = draw_block(board_list, block, y - 1, x, block_color) # Don't know why but (y - 1) just works
-                board_list_copy = copy.deepcopy(board_list) # If a block is colliding with another block, then it is another round
+            if not is_board_full(board_list, block, y, x, block_color):
+                if not colliding(board_list, block, y, x):
+                    # Draw the block on the board_list
+                    board_list = draw_block(board_list, block, y, x, block_color)
+                elif colliding(board_list, block, y, x):
+                    board_list = draw_block(board_list, block, y - 1, x, block_color) # Don't know why but (y - 1) just works
+                    board_list_copy = copy.deepcopy(board_list) # If a block is colliding with another block, then it is another round
+                    break
+            else:
+                game_active = False
                 break
 
             # Update the score
@@ -246,21 +261,12 @@ def main(stdscr):
             # Make the block move downward
             y += 1
             # Vertical calculations
-            if y < maximum_y:
+            if y <= maximum_y:
                 if board_list_copy:
-                    # Deep copy the last state of the board
                     board_list = copy.deepcopy(board_list_copy)
                 else:
-                    # If there is no copy, then make a plain board
                     board_list = make_board_list(BOARD_HEIGHT, BOARD_WIDTH, BOARD_CHAR)
-            elif y == maximum_y:
-                if board_list_copy:
-                    # Deep copy the last state of the board
-                    board_list = copy.deepcopy(board_list_copy)
-                else:
-                    # If there is no copy, then make a plain board
-                    board_list = make_board_list(BOARD_HEIGHT, BOARD_WIDTH, BOARD_CHAR)
-            elif y > maximum_y:
+            if y > maximum_y:
                 board_list_copy = copy.deepcopy(board_list)
                 break
 
