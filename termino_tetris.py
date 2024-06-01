@@ -1,7 +1,14 @@
+'''
+A program to play tetris on the terminal/console.
+
+To play this program on windows:
+(type in the terminal)
+pip install windows-curses
+'''
 import curses # The main module needed for this game to work
 import time # Time related functions for the smooth animation of the game
-import random # Randomizing element
-import sys # System control
+import random # To randomize the blocks in the game
+import sys # Sytem handling
 import copy # To copy the 2d list effectively
 
 # Game Constants
@@ -35,10 +42,10 @@ SHAPES = [
 ]
 
 # Game level
-LEVEL = 0.28
+LEVEL = 0.27
 
 def create_new_block(shapes):
-    ''' Generates a shape and color for the block RANDOMLY '''
+    '''Generates a shape and color for the block RANDOMLY'''
     # Initialize the colors. 0 is reserved for black and white color pair
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
@@ -158,7 +165,7 @@ def score_and_clear(board, score):
             break
     return score, board
 
-def is_board_full(board):
+def is_board_full(board, block, blocky, blockx, color):
     '''Returns a bool whether the board is filled with blocks or not'''
     if all(item[0] == BOARD_CHAR for item in board[0]):
         return False
@@ -221,10 +228,11 @@ def main(stdscr):
         y, x = (0, BOARD_WIDTH // 2 - len(block[0]) // 2)
         while True:
             '''Main loop of the game'''
-            # If there is a copy, copy that shit
+            # If there is a copy, copy that shit. If there isn't make a new one
             if board_list_copy:
                 board_list = copy.deepcopy(board_list_copy)
 
+            # Check if the block collides with another block and the board is not full
             if not is_board_full(board_list, block, y, x, block_color):
                 if not colliding(board_list, block, y, x):
                     # Draw the block on the board_list
@@ -235,6 +243,11 @@ def main(stdscr):
                     break
             else:
                 game_active = False
+                score_brd_win.clear()
+                score_brd_win.refresh()
+                instr_win.clear()
+                instr_win.refresh()
+
                 break
 
             # Update the score
@@ -276,23 +289,27 @@ def main(stdscr):
             # Quit
             if key == ord('q') or key == ord('Q'):
                 game_active = False
+                score_brd_win.clear()
+                score_brd_win.refresh()
+                instr_win.clear()
+                instr_win.refresh()
                 break
             # Move the block right -->
-            elif key == curses.KEY_RIGHT and x <= maximum_x and y <= maximum_y and not colliding(board_list, block, y, x):
+            if key == curses.KEY_RIGHT and x <= maximum_x and y <= maximum_y and not colliding(board_list, block, y, x):
                 x += 1
                 if x > maximum_x:
                     x = maximum_x
                 if colliding(board_list, block, y, x):
                     x -= 1
             # Move the block left <--
-            elif key ==  curses.KEY_LEFT and x >= 0 and y <= maximum_y and not colliding(board_list, block, y, x):
+            if key ==  curses.KEY_LEFT and x >= 0 and y <= maximum_y and not colliding(board_list, block, y, x):
                 x -= 1
                 if x < 0:
                     x = 0
                 if colliding(board_list, block, y, x):
                     x += 1
             # Rotate the block counter-clockwise
-            elif key == curses.KEY_UP and (0 <= y < maximum_y) and (0 <= x <= maximum_x) and not colliding(board_list, block, y, x):
+            if key == curses.KEY_UP and (0 <= y < maximum_y) and (0 <= x <= maximum_x) and not colliding(board_list, block, y, x):
                 # First make a temporary block
                 temp_block = rotate_block(block)
                 # Get the maximum y and x for the rotated temporary block
@@ -311,11 +328,17 @@ def main(stdscr):
                 else:
                     del temp_block
             # Drop the block
-            elif key == ord(' ') and y < maximum_y:
+            if key == ord(' ') and (y < maximum_y):
                 y = drop_block(board_list, block, y, x, maximum_y)
 
             # Slow the program for smooth animation
             time.sleep(LEVEL)
+
+    # If the game ends, show that
+    board_win.clear()
+    board_win.addstr(board_win_height // 2, 0, 'GAME OVER')
+    board_win.refresh()
+    time.sleep(2)
 
 if __name__ == "__main__":
     curses.wrapper(main)
