@@ -78,7 +78,7 @@ def draw_score(window, score):
     window.addstr(y, x, scr_text)
 
 def draw_instruction(window):
-    '''Draws the instructions'''
+    '''Draws the instructions to play the game'''
     window.addstr(0, 0, 'Move right:')
     window.addstr(1, 0, 'RIGHT Arrow Key ->')
     window.addstr(2, 0, '------------------')
@@ -146,6 +146,7 @@ def colliding(board, block, blocky, blockx):
     return False
 
 def drop_block(board, block, blocky, blockx, max_vertical):
+    '''Drops the block'''
     y = blocky
     while not colliding(board, block, y, blockx):
         y += 1
@@ -203,7 +204,7 @@ def main(stdscr):
 
     # If the screen is smaller than the board, the program will simply not run
     if (board_win_width + instr_win_width + 5) > screen_width or (board_win_height + score_win_height + 1) > screen_height:
-        sys.exit("\nPlease make the terminal full screen or just a bit bigger, buddy")
+        sys.exit("\nPlease make the terminal full screen or just a bit bigger, buddy\n")
 
     # Create all the windows
     board_win = curses.newwin(board_win_height, board_win_width, board_win_y, board_win_x) # Create the board window
@@ -334,9 +335,9 @@ def main(stdscr):
             # Slow the program for smooth animation
             time.sleep(LEVEL)
 
-    # If the game ends, show that
+    # If the game ends or quits, show a 'GAME OVER!' text
     board_win.clear()
-    board_win.addstr(board_win_height // 2, 0, 'GAME OVER')
+    board_win.addstr(board_win_height // 2, 0, 'GAME OVER!')
     board_win.refresh()
     time.sleep(1)
 
