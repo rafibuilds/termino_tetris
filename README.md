@@ -4,7 +4,7 @@ This is a Python program to play Tetris in the terminal/console. It utilizes the
 
 ## How to Run
 
-To play this program on **Windows OS**, follow these steps:
+#### **Windows OS**:
 
 1. First, make sure you have Python installed on your system.
 2. Clone the repository containing the Tetris program:
@@ -27,7 +27,22 @@ To play this program on **Windows OS**, follow these steps:
     python termino_tetris.py
     ```
 
-- The `curses` module is already installed in Unix/Mac devices
+#### **Unix/MacOS**:
+The `curses` module is already installed in Unix/Mac devices
+
+1. First, make sure you have Python installed on your system.
+2. Clone the repository containing the Tetris program:
+
+    ```
+    git clone https://github.com/rafibuilds/termino_tetris
+    ```
+
+3. Navigate to the directory where the program is cloned.
+4. Run the program:
+   ```
+   python termino_tetris.py
+   ```
+
 
 ## Instructions
 
