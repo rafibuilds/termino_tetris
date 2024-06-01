@@ -39,8 +39,8 @@ To play this program on **Windows OS**, follow these steps:
 
 ## Program Overview
 
-- **Game Constants:** Definitions of various constants such as board width and height, block characters, etc.
-- **Shapes:** Definitions of different Tetris block shapes.
+- **Game Constants:** Definitions of various constants such as BLOCK_CHAR, BOARD_CHAR, SHAPES, LEVEL.
+- **Shapes:** Basically a 2D list under the constant SHAPES.
 - **Functions:**
     - `create_new_block`: Generates a random block shape and color.
     - `draw_board`: Draws the Tetris board on the screen.
