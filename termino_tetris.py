@@ -1,7 +1,7 @@
 '''
 A program to play tetris on the terminal/console.
 
-To play this program on windows:
+To play this program on Windows OS:
 (type in the terminal)
 pip install windows-curses
 '''
@@ -242,16 +242,15 @@ def main(stdscr):
                     board_list_copy = copy.deepcopy(board_list) # If a block is colliding with another block, then it is another round
                     break
             else:
-                game_active = False
+                game_active = False # The game will not generate any more blocks
                 score_brd_win.clear()
                 score_brd_win.refresh()
                 instr_win.clear()
                 instr_win.refresh()
-
                 break
 
             # Update the score
-            score, board_list = score_and_clear(board_list, score)
+            score, board_list = score_and_clear(board_list, score) # Update the socre, clear the rows
 
             # Draw the main game window
             board_win.clear() # Clear the window
@@ -279,7 +278,7 @@ def main(stdscr):
                     board_list = copy.deepcopy(board_list_copy)
                 else:
                     board_list = make_board_list(BOARD_HEIGHT, BOARD_WIDTH, BOARD_CHAR)
-            if y > maximum_y:
+            if y > maximum_y: # If y is out of the board height, then copy the previous state and break the loop
                 board_list_copy = copy.deepcopy(board_list)
                 break
 
@@ -288,7 +287,8 @@ def main(stdscr):
             # Block movements
             # Quit
             if key == ord('q') or key == ord('Q'):
-                game_active = False
+                game_active = False # The game will not generate any more blocks
+                # Clear the instruction and score windows and break out of the loop
                 score_brd_win.clear()
                 score_brd_win.refresh()
                 instr_win.clear()
@@ -297,16 +297,16 @@ def main(stdscr):
             # Move the block right -->
             if key == curses.KEY_RIGHT and x <= maximum_x and y <= maximum_y and not colliding(board_list, block, y, x):
                 x += 1
-                if x > maximum_x:
+                if x > maximum_x: # Check if x is greater than the maximum range of x
                     x = maximum_x
-                if colliding(board_list, block, y, x):
+                if colliding(board_list, block, y, x): # Check if the increase in x makes the block collide with another block
                     x -= 1
             # Move the block left <--
             if key ==  curses.KEY_LEFT and x >= 0 and y <= maximum_y and not colliding(board_list, block, y, x):
                 x -= 1
-                if x < 0:
+                if x < 0: # Check if x is less than 0
                     x = 0
-                if colliding(board_list, block, y, x):
+                if colliding(board_list, block, y, x): # Check if the decrease in x makes the block collide with another block
                     x += 1
             # Rotate the block counter-clockwise
             if key == curses.KEY_UP and (0 <= y < maximum_y) and (0 <= x <= maximum_x) and not colliding(board_list, block, y, x):
@@ -328,7 +328,7 @@ def main(stdscr):
                 else:
                     del temp_block
             # Drop the block
-            if key == ord(' ') and (y < maximum_y):
+            if key == ord(' ') and y < maximum_y:
                 y = drop_block(board_list, block, y, x, maximum_y)
 
             # Slow the program for smooth animation
@@ -338,7 +338,7 @@ def main(stdscr):
     board_win.clear()
     board_win.addstr(board_win_height // 2, 0, 'GAME OVER')
     board_win.refresh()
-    time.sleep(2)
+    time.sleep(1)
 
 if __name__ == "__main__":
     curses.wrapper(main)
