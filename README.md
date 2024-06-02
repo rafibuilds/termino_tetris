@@ -78,6 +78,21 @@ The `curses` module is already installed in Unix/Mac devices
 - `sys`: System handling.
 - `copy`: For effective copying of the 2D list.
 
-## Running the Program
+## Function Explanations
 
-The program initializes the game window, creates the Tetris board, and handles user input to move and rotate the blocks. The game ends when the board is filled with blocks, and it displays "GAME OVER".
+### 1. create_new_block(shapes: Any) -> tuple[Any, int]
+Generates a new block from `shapes`. `shapes` argument value will come from `SHAPES` constant. The function first initializes all the colors with the `curses.init_pair()` function and each color has a specific id number(0 is exclusively reserved for Black and White). `curses.init_pair()` has three parameters which is the color id number, foreground(the color that is on top) and background. In this game, the fg and bd colors are given by the `curses` module's color constants. After the initialization step, a random block is generated from `shapes` and both block and color is returned.
+
+### 2. draw_board(window: Any, board: Any) -> Any
+
+
+### 3. draw_score(window: Any, score: int) -> Any
+
+
+### 4. draw_instruction(window: Any) -> Any
+
+
+### 5. make_board_list(rows: int, cols: int, char: str) -> Any
+
+
+### 6. rotate_block(shape: Any) -> Any
