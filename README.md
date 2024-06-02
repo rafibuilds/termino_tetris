@@ -54,8 +54,8 @@ The `curses` module is already installed in Unix/Mac devices
 
 ## Program Overview
 
-- **Game Constants:** Definitions of various constants such as BLOCK_CHAR, BOARD_CHAR, SHAPES, LEVEL.
-- **Shapes:** Basically a 2D list under the constant SHAPES.
+- **Game Constants:** Definitions of various constants such as `BLOCK_CHAR`, `BOARD_CHAR`, `SHAPES`, `LEVEL`.
+- **Shapes:** Basically a 2D list under the constant `SHAPES`.
 - **Functions:**
     - `create_new_block`: Generates a random block shape and color.
     - `draw_board`: Draws the Tetris board on the screen.
