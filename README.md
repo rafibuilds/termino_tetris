@@ -120,10 +120,3 @@ Checks if the board is completely filled with blocks. For this the whole board d
 
 #### 12. `main(stdscr: "_curses.window") -> None` 
 The main function of the game.
-
-### Dependencies:
-- `curses`: Main module for terminal/console handling.
-- `time`: For smooth animation of the game.
-- `random`: To randomize the blocks in the game.
-- `sys`: System handling.
-- `copy`: For effective copying of the 2D list.
