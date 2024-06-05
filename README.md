@@ -1,45 +1,39 @@
 # Termino Tetris
-
 This is a Python program to play Tetris in the terminal/console. It utilizes the `curses` library for terminal handling.
+
+#### Video demo: [Tetris in the terminal](https://youtu.be/-T2U5NGxXmA)
 
 ## How to Run
 
 #### **Windows OS**:
-
 1. First, make sure you have Python installed on your system.
+
 2. Clone the repository containing the Tetris program:
-
     ```
-    git clone https://github.com/rafibuilds/termino_tetris
+    git clone https://www.github.com/rafibuilds/termino_tetris
     ```
-
 3. Navigate to the directory where the program is cloned.
    ```
    cd termino_tetris
    ```
-   
 4. Install the `windows-curses` package using pip:
-
     ```
     pip install windows-curses
     ```
-
 5. Run the program:
-
     ```
     python termino_tetris.py
     ```
 
 #### **Unix/MacOS**:
-The `curses` module is already installed in Unix/Mac devices
+The `curses` module is a standard library for Python in Unix/Mac devices
 
 1. First, make sure you have Python installed on your system.
+
 2. Clone the repository containing the Tetris program:
-
     ```
-    git clone https://github.com/rafibuilds/termino_tetris
+    git clone https://www.github.com/rafibuilds/termino_tetris
     ```
-
 3. Navigate to the directory where the program is cloned.
    ```
    cd termino_tetris
@@ -50,16 +44,17 @@ The `curses` module is already installed in Unix/Mac devices
    ```
 
 ## Instructions
-
 - **Move Right:** Use the RIGHT Arrow Key `->`
 - **Move Left:** Use the LEFT Arrow Key `<-`
 - **Rotate Block:** Use the UP Arrow Key `^`
 - **Drop Block:** Press the Space Bar `|__|`
-- **Quit:** Press `q`.
+- **Quit:** Press `q`
+
+**W, A, S, D will not work**
 
 ## Program Overview
-
 - **Game Constants:** Definitions of various constants such as `BLOCK_CHAR`, `BOARD_CHAR`, `SHAPES`, `LEVEL`.
+
 - **Shapes:** Basically a 2D list under the constant `SHAPES`.
 - **Functions:**
     - `create_new_block`: Generates a random block shape and color.
@@ -76,7 +71,6 @@ The `curses` module is already installed in Unix/Mac devices
     - `main`: Main function to run the game.
 
 ## Dependencies
-
 - `curses`: Main module for terminal/console handling.
 - `time`: For smooth animation of the game.
 - `random`: To randomize the blocks in the game.
@@ -84,7 +78,6 @@ The `curses` module is already installed in Unix/Mac devices
 - `copy`: For effective copying of the 2D list.
 
 ## Function Explanations
-
 ### 1. **create_new_block(shapes: list[list[list[int]]]) -> tuple[list[list[int]], int]**
 Generates a new block and its color randomly. The `shapes` argument value comes from `SHAPES`, which is a list of block shapes represented as nested lists. Each item of `shpaes` is a list and that list contains more lists. This function initializes colors using the `curses.init_pair()` function and assigns each color a specific ID number. Then, it randomly selects a block shape from `shapes` and returns both the block shape and its corresponding color.
 
@@ -116,7 +109,7 @@ Drops the given block vertically until it collides with another block or reaches
 Clears full rows on the `board`, updates the score accordingly, and returns the updated `score` and `board`. It iterates through the last row of the board, checks if it is full, clears it if necessary, and updates the score and the process iterates untill the last row is not filled with `BLOCK_CHAR`.
 
 ### 11. **is_board_full(board: list[list[tuple[str, int]]], block: list[list[int]], blocky: int, blockx: int, color: int) -> bool**
-Checks if the board is completely filled with blocks. For this the whole board doesn't need to be checked, only the top row is sufficient. The function first checks if the first row of `board` is filled with `BOARD_CHAR`, if it is then `board` is not full and returns `False`. If it is not, then it will see if putting the `block` at `blocky` position will make the `block` collide with another one. If it doesn't then the `block` will be drawn on the `board` with `draw_block()` function. Then again the first row will be checked. After this continuous process, `True` or `False` will be returned of the basis if the `board` is full or not.
+Checks if the board is completely filled with blocks. For this the whole board doesn't need to be checked, only the top row is sufficient. The function first checks if the first row of `board` is filled with `BOARD_CHAR`, if it is then `board` is not full and returns `False`. If it is not, then it will see if putting the `block` at `blocky` position will make the `block` collide with another one. If it doesn't then the `block` will be drawn on the `board` with `draw_block()` function. Then again the first row will be checked. After this continuous process, `True` or `False` will be returned on the basis if the `board` is full or not.
 
 ### 12. **main(stdscr: "_curses.window") -> None**
 #### Preparatory Setup
@@ -126,8 +119,8 @@ Checks if the board is completely filled with blocks. For this the whole board d
   - `stdscr.clear()`: Clearing the main window ensures a clean starting point for rendering game elements. It removes any previous content, providing a blank canvas for the Tetris game.
 
 #### Window Setup
-- The window setup section calculates the dimensions and positions of various game windows and creates them using the curses library:
-  - Tetris Board Window (`board_win`): 
+- The window setup section calculates the dimensions and positions of various game windows and creates them using the `curses` library:
+  - Tetris Board Window (`board_win`):
     - Its dimensions (`board_win_height`, `board_win_width`) are calculated based on the desired size for displaying the Tetris game board. These dimensions ensure that the board fits comfortably within the terminal window.
     - The position (`board_win_y`, `board_win_x`) is determined relative to the screen center, ensuring the board appears centered on the screen.
     - The window is created using `curses.newwin()` with the calculated dimensions and position, providing a dedicated space for rendering the Tetris game board.
@@ -142,16 +135,15 @@ Checks if the board is completely filled with blocks. For this the whole board d
 
 #### Game Loop
 - The game loop is the heart of the Tetris game, orchestrating various game elements and interactions. It runs continuously until the game ends, executing the following key tasks:
-  - Block Generation, Movement, and Collision Detection: 
+  - Block Generation, Movement, and Collision Detection:
     - Blocks are randomly generated using the `create_new_block()` function, selecting shapes and colors for each block.
-    - The block's position (`y`, `x`) is updated based on user input, allowing for left, right, rotation, and dropping movements.
-    - Collision detection ensures that blocks interact correctly with the game board and other blocks, preventing overlap or unintended behavior.
+    - The block's position (`y`, `x`) is updated based on user input, allowing for left, right, rotation, and dropping movements. The block automatically moves downward
+    - Collision detection ensures that blocks interact correctly with the game board and other blocks, preventing overlap or unintended behavior and it is done with the `colliding()` function.
   - Scoring and Display Updates:
     - Scoring occurs when complete rows are cleared, and the `score_and_clear()` function handles this process.
     - The game continuously updates the display, rendering the Tetris game board, score board, and instruction window to reflect the current game state.
   - User Input Handling:
-    - The function listens for user input, interpreting keypresses to control block movement, rotation, and quitting the game.
-    - Responsive input handling ensures smooth and intuitive gameplay, allowing players to interact with the game seamlessly.
+    - The function listens for user input, interpreting keypresses to control block movement, rotation, and quitting the game. The input is handled by the `stdscr.getch()` method.
   - Smooth Animation:
     - Time delays introduced using `time.sleep()` ensure smooth animation of block movement and game rendering, enhancing the overall gaming experience.
 
@@ -160,8 +152,8 @@ Checks if the board is completely filled with blocks. For this the whole board d
   - Random Block Generation:
     - Blocks are generated randomly using the `create_new_block()` function, which selects shapes and colors from predefined options.
   - Block Movement and Collision Detection:
-    - User input determines block movement, allowing players to shift, rotate, or drop blocks within the game board.
-    - Collision detection ensures that blocks interact correctly with existing game elements, preventing overlaps or conflicts.
+    - User input determines block movement, allowing players to shift, rotate, or drop blocks within the game board. The block moves downward automatically.
+    - Collision detection ensures that blocks interact correctly with existing game elements, preventing overlaps or conflicts and is done with `collding()` function.
 
 #### Scoring
 - Scoring mechanisms are essential for tracking player performance and providing feedback on gameplay progress. This section explains how scoring is implemented and updated during gameplay:
@@ -180,7 +172,7 @@ Checks if the board is completely filled with blocks. For this the whole board d
 #### Input Handling
 - Effective input handling is crucial for providing players with responsive and intuitive controls. This section explains how user input is processed and utilized within the game loop:
   - Control Mapping:
-    - User input, such as keypresses, is mapped to specific actions within the game, such as block movement, rotation, or quitting the game.
+    - User input, such as keypresses, is mapped to specific actions within the game, such as block movement, rotation, or quitting the game. Key inputs are recorded with the `stdscr.getch()` method.
   - Responsiveness and Feedback:
     - Responsive input handling ensures that player actions are promptly reflected in the game, providing immediate feedback and enhancing the overall gaming experience.
 
@@ -190,3 +182,31 @@ Checks if the board is completely filled with blocks. For this the whole board d
     - All game windows are cleared to remove any remaining content and prepare for the next game session.
   - Exiting Curses:
     - The function exits curses using `curses.wrapper()`, ensuring that the curses library is unloaded properly and the terminal state is restored.
+
+## Testing the game
+### Pytest
+[Pytest](https://docs.pytest.org/en/8.2.x/) is a third-party package/library. It is a testing framework that makes it easy to make and execute tests for programs. Tests can be easily run from the command prompt for a single file or a whole directory. To use the script as a python program the `pytest.main()` is necessary.
+To run tests from the terminal:
+```
+pytest test_termino_tetris.py
+```
+The file name should have a `test_*.py` suffix.
+
+### Test functions
+#### `test_make_board_list()`
+Tests the creation of the Tetris board data structure using various board sizes and characters.
+
+#### `test_rotate_block()`
+Tests the rotation of a Tetris block counter-clockwise.
+
+#### `test_colliding()`
+Tests collision detection between a Tetris block and the board.
+
+#### `test_drop_block()`
+Tests dropping a Tetris block to the lowest possible position on the board.
+
+#### `test_score_and_clear()`
+Tests scoring and clearing filled rows on the Tetris board.
+
+#### `test_is_board_full()`
+Tests determining if the Tetris board is full.
