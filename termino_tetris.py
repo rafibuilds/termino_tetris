@@ -26,7 +26,7 @@ import sys # Sytem handling
 import copy # To copy the 2d list effectively
 
 # Game Constants
-BOARD_WIDTH, BOARD_HEIGHT = (10, 20) # The tetris board width and height
+BOARD_WIDTH, BOARD_HEIGHT = 10, 20 # The tetris board width and height
 BLOCK_CHAR = "X" # This is the character that will make the block or the tetromino
 BOARD_CHAR = "O" # This is the chacter that will make the board
 
@@ -93,19 +93,19 @@ def draw_score(window, score):
 
 def draw_instruction(window):
     '''Draws the instructions'''
-    window.addstr(0, 0, 'Move right:')
+    window.addstr(0, 0, 'Move right:') # Right
     window.addstr(1, 0, 'RIGHT Arrow Key ->')
     window.addstr(2, 0, '------------------')
-    window.addstr(3, 0, 'Move left:')
+    window.addstr(3, 0, 'Move left:') # Left
     window.addstr(4, 0, 'LEFT Arrow Key <-')
     window.addstr(5, 0, '------------------')
-    window.addstr(6, 0, 'Rotate block:')
+    window.addstr(6, 0, 'Rotate block:') # Rotate
     window.addstr(7, 0, 'UP Arrow Key ^')
     window.addstr(8, 0, '---------------')
-    window.addstr(9, 0, 'Drop block:')
+    window.addstr(9, 0, 'Drop block:') # Drop
     window.addstr(10, 0, 'Space Bar |__|')
     window.addstr(11, 0, '--------------')
-    window.addstr(12, 0, 'QUIT')
+    window.addstr(12, 0, 'QUIT') # Quit
     window.addstr(13, 0, 'Press q')
     window.addstr(14, 0, '-------')
 
@@ -148,7 +148,7 @@ def colliding(board, block, blocky, blockx):
     for row, part in enumerate(block):
         for col, piece in enumerate(part):
             if piece == 1:
-                if board[blocky + row][blockx + col][0] == BOARD_CHAR:
+                if board[blocky + row][blockx + col][0] == BOARD_CHAR: # No collision yet
                     continue
                 elif board[blocky + row][blockx + col][0] == BLOCK_CHAR:
                     # If there is a block char then there is a collision
@@ -160,9 +160,9 @@ def colliding(board, block, blocky, blockx):
 
 def drop_block(board, block, blocky, blockx, max_vertical):
     y = blocky
-    while not colliding(board, block, y, blockx):
+    while not colliding(board, block, y, blockx): # Keep increasing y until there is a collision
         y += 1
-        if y > max_vertical:
+        if y > max_vertical: # If y is greater than max_vertical then y is max_vertical
             y = max_vertical
             break
     return y
@@ -170,7 +170,7 @@ def drop_block(board, block, blocky, blockx, max_vertical):
 def score_and_clear(board, score):
     '''Clears the rows and scores, if all the chars are BLOCK_CHAR'''
     while True:
-        if all(item[0] == BLOCK_CHAR for item in board[-1]): # Checks the last row
+        if all(item[0] == BLOCK_CHAR for item in board[-1]): # Checks the last row and continues to check until a condition is met
             del board[-1]
             board.insert(0, [(BOARD_CHAR, None)] * BOARD_WIDTH) # inserts a new row at the first index
             score += 1
@@ -180,16 +180,16 @@ def score_and_clear(board, score):
 
 def is_board_full(board, block, blocky, blockx, color):
     '''Returns a bool whether the board is filled with blocks or not'''
-    if all(item[0] == BOARD_CHAR for item in board[0]):
+    if all(item[0] == BOARD_CHAR for item in board[0]): # Check if first row is all BOARD_CHAR
         return False
     else:
-        if not colliding(board, block, blocky, blockx):
-            board = draw_block(board, block, blocky, blockx, color)
-            if all(item[0] == BOARD_CHAR for item in board[0]):
+        if not colliding(board, block, blocky, blockx): # Check if the block deos not collide at (y, x) position
+            board = draw_block(board, block, blocky, blockx, color) # Put the block at (y, x) position
+            if all(item[0] == BOARD_CHAR for item in board[0]): # Check if the first row is all BOARD_CHAR
                 return False
             else:
                 return True
-        else:
+        else: # If it collides then board is full
             return True
 
 def main(stdscr):
@@ -208,11 +208,11 @@ def main(stdscr):
 
     # Score board window measurements
     score_win_height, score_win_width = 2, 11 # Width same as board_win_width
-    score_win_y, score_win_x = (board_win_y - score_win_height - 1, board_win_x)
+    score_win_y, score_win_x = (board_win_y - score_win_height - 1), board_win_x
 
     # Instruction window measurements
     instr_win_height, instr_win_width = 15, 20
-    instr_win_y, instr_win_x = (board_win_y), (board_win_x + board_win_width + 5)
+    instr_win_y, instr_win_x = board_win_y, (board_win_x + board_win_width + 5)
 
     # If the screen is smaller than the board, the program will simply not run
     if (board_win_width + instr_win_width + 5) > screen_width or (board_win_height + score_win_height + 1) > screen_height:
@@ -221,9 +221,9 @@ def main(stdscr):
     # Create all the windows
     board_win = curses.newwin(board_win_height, board_win_width, board_win_y, board_win_x) # Create the board window
     board_win.nodelay(True)
-    score_brd_win = curses.newwin(score_win_height, score_win_width, score_win_y, score_win_x)
+    score_brd_win = curses.newwin(score_win_height, score_win_width, score_win_y, score_win_x) # Create the score board window
     score_brd_win.nodelay(True)
-    instr_win = curses.newwin(instr_win_height, instr_win_width, instr_win_y, instr_win_x)
+    instr_win = curses.newwin(instr_win_height, instr_win_width, instr_win_y, instr_win_x) # Create the instruction window
     instr_win.nodelay(True)
 
     # Make the board data structure and the copy
@@ -236,9 +236,9 @@ def main(stdscr):
 
     while game_active:
         '''Block generating part of the game'''
-        # Create the block
+        # Create the block and color
         block, block_color = create_new_block(SHAPES)
-        y, x = (0, BOARD_WIDTH // 2 - len(block[0]) // 2)
+        y, x = 0, (BOARD_WIDTH // 2 - len(block[0]) // 2)
         while True:
             '''Main loop of the game'''
             # If there is a copy, copy that shit. If there isn't make a new one
@@ -255,6 +255,7 @@ def main(stdscr):
                     board_list_copy = copy.deepcopy(board_list) # If a block is colliding with another block, then it is another round
                     break
             else:
+                # Clear the score and instruction window and break out of the loop
                 game_active = False
                 score_brd_win.clear()
                 score_brd_win.refresh()
