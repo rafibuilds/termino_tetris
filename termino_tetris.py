@@ -169,13 +169,21 @@ def drop_block(board, block, blocky, blockx, max_vertical):
 
 def score_and_clear(board, score):
     '''Clears the rows and scores, if all the chars are BLOCK_CHAR'''
-    while True:
-        if all(item[0] == BLOCK_CHAR for item in board[-1]): # Checks the last row and continues to check until a condition is met
-            del board[-1]
-            board.insert(0, [(BOARD_CHAR, None)] * BOARD_WIDTH) # inserts a new row at the first index
-            score += 1
-        else:
-            break
+    # Take note of which rows to clear
+    rows_to_be_cleared = []
+    for row_idx, row in enumerate(board):
+        if all(item[0] == BLOCK_CHAR for item in row):
+            rows_to_be_cleared.append(row_idx)
+    
+    # Clear the identified rows from the board
+    for row_idx in reversed(rows_to_be_cleared):
+        board.pop(row_idx)
+        # Insert a new empty row at the top
+        board.insert(0, [(BOARD_CHAR, None)] * BOARD_WIDTH)
+
+    # Increase the score based on the number of cleared rows
+    score += len(rows_to_be_cleared)
+
     return score, board
 
 def is_board_full(board, block, blocky, blockx, color):
@@ -239,6 +247,9 @@ def main(stdscr):
         # Create the block and color
         block, block_color = create_new_block(SHAPES)
         y, x = 0, (BOARD_WIDTH // 2 - len(block[0]) // 2)
+        # The maximum horizontal and vertical for the block
+        maximum_x = board_win_width - 1 - len(block[0])
+        maximum_y = board_win_height - 1 - len(block)
         while True:
             '''Main loop of the game'''
             # If there is a copy, copy that shit. If there isn't make a new one
@@ -264,7 +275,8 @@ def main(stdscr):
                 break
 
             # Update the score
-            score, board_list = score_and_clear(board_list, score)
+            if y == drop_block(board_list, block, y, x, maximum_y):
+                score, board_list = score_and_clear(board_list, score)
 
             # Draw the main game window
             board_win.clear() # Clear the window
@@ -281,9 +293,6 @@ def main(stdscr):
             # Refresh the stdscr
             stdscr.refresh()
 
-            # The maximum horizontal and vertical for the block
-            maximum_x = board_win_width - 1 - len(block[0])
-            maximum_y = board_win_height - 1 - len(block)
             # Make the block move downward
             y += 1
             # Vertical calculations
