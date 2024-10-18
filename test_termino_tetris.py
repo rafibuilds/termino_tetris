@@ -86,10 +86,38 @@ def test_score_and_clear():
     """
     Test scoring and clearing filled rows on the tetris board.
     """
-    board = make_board_list(10, 10, BLOCK_CHAR)
-    score = 0
-    score, board = score_and_clear(board, score)
-    assert score == 10
+    board1 = make_board_list(20, 10, BLOCK_CHAR)
+    score1 = 0
+    score1, board1 = score_and_clear(board1, score1)
+    assert score1 == 20
+    assert len(board1) == 20
+
+    board2 = make_board_list(20, 10, BLOCK_CHAR)
+    board2.pop()
+    board2.insert(-1, [(BOARD_CHAR, None)] * 10)
+    score2 = 0
+    score2, board2 = score_and_clear(board2, score2)
+    assert score2 == 19
+    assert len(board2) == 20
+
+    board3 = make_board_list(20, 10, BOARD_CHAR)
+    board3.pop()
+    board3.pop()
+    board3.insert(-1, [(BLOCK_CHAR, None)] * 10)
+    board3.insert(-1, [(BLOCK_CHAR, None)] * 10)
+    score3 = 0
+    score3, board3 = score_and_clear(board3, score3)
+    assert score3 == 2
+    assert len(board3) == 20
+
+    board4 = make_board_list(20, 10, BOARD_CHAR)
+    board4[-1] = [(BLOCK_CHAR, None)] * 10
+    board4[18] = [(BLOCK_CHAR, None)] * 10
+    board4[17] = [(BLOCK_CHAR, None)] * 10
+    score4 = 0
+    score4, board4 = score_and_clear(board4, score4)
+    assert score4 == 3
+    assert len(board4) == 20
 
 def test_is_board_full():
     """
