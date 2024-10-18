@@ -10,7 +10,7 @@ This is a Python program to play Tetris in the terminal/console. It utilizes the
 
 2. Clone the repository containing the Tetris program:
     ```
-    git clone https://www.github.com/rafibuilds/termino_tetris
+    git clone https://www.github.com/rafibuilds/termino_tetris.git
     ```
 3. Navigate to the directory where the program is cloned.
    ```
@@ -32,7 +32,7 @@ The `curses` module is a standard library for Python in Unix/Mac devices
 
 2. Clone the repository containing the Tetris program:
     ```
-    git clone https://www.github.com/rafibuilds/termino_tetris
+    git clone https://www.github.com/rafibuilds/termino_tetris.git
     ```
 3. Navigate to the directory where the program is cloned.
    ```
@@ -108,7 +108,7 @@ Drops the given block vertically until it collides with another block or reaches
 ### 10. **score_and_clear(board: list[list[tuple[str, int]]], score: int) -> tuple[int, list[list[tuple[str, int]]]]**
 Clears full rows on the `board`, updates the score accordingly, and returns the updated `score` and `board`. It iterates through the last row of the board, checks if it is full, clears it if necessary, and updates the score and the process iterates untill the last row is not filled with `BLOCK_CHAR`.
 
-### 11. **is_board_full(board: list[list[tuple[str, int]]], block: list[list[int]], blocky: int, blockx: int, color: int) -> bool**
+### 11. **is_board_full(board: list[list[tuple[str, int]]], block: list[list[int]], blocky: int, blockx: int) -> bool**
 Checks if the board is completely filled with blocks. For this the whole board doesn't need to be checked, only the top row is sufficient. The function first checks if the first row of `board` is filled with `BOARD_CHAR`, if it is then `board` is not full and returns `False`. If it is not, then it will see if putting the `block` at `blocky` position will make the `block` collide with another one. If it doesn't then the `block` will be drawn on the `board` with `draw_block()` function. Then again the first row will be checked. After this continuous process, `True` or `False` will be returned on the basis if the `board` is full or not.
 
 ### 12. **main(stdscr: "_curses.window") -> None**
