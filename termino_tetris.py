@@ -1,204 +1,146 @@
-'''
-A game to play tetris in the terminal/console.
-
-**For playing in windows**
-pip install windows-curses
-
-Playing instruction:
-(For simplicity, the arrow keys are used. W, A, S, D will not work)
-
-    Right arrow key ->
-    for going right
-
-    Left arrow key <-
-    for going left
-
-    Up arrow key ^ (not the carret char)
-    for rotating the block
-
-    Space bar |__|
-    for droping the block
-'''
 import curses # The main module needed for this game to work
 import time # Time related functions for the smooth animation of the game
 import random # To randomize the blocks in the game
 import sys # Sytem handling
-import copy # To copy the 2d list effectively
+from typing import List, Tuple # For type hinting and debugging purposes
 
 # Game Constants
 BOARD_WIDTH, BOARD_HEIGHT = 10, 20 # The tetris board width and height
 BLOCK_CHAR = "X" # This is the character that will make the block or the tetromino
 BOARD_CHAR = "O" # This is the chacter that will make the board
+LEVEL = 0.27 # Game lvl
 
 # Shapes of the blocks
 SHAPES = [
     [[1, 1, 1, 1]], # Straight-line block
-
     [[1, 1], # Squre block
      [1, 1]],
-
     [[1, 1, 1], # T-block
      [0, 1, 0]],
-
     [[1, 1, 0], # Z-block
      [0, 1, 1]],
-
     [[0, 1, 1], # S-block
      [1, 1, 0]],
-
     [[1, 0], # L-block
      [1, 0],
      [1, 1]],
-
     [[0, 1], # Reverse L-block
      [0, 1],
      [1, 1]],
 ]
 
-# Game level
-LEVEL = 0.27
+def create_new_block(shapes: List[List[List[int]]]) -> Tuple[List[List[int]], int]:
+    '''Generates a shape and color for the block RANDOMLY.
+       --------------------------------------------------- 
+       curses.COLOR_BLACK == 0
+       curses.COLOR_BLUE == 1
+       curses.COLOR_GREEN == 2
+       curses.COLOR_CYAN == 3
+       curses.COLOR_RED == 4
+       curses.COLOR_MAGENTA == 5
+       curses.COLOR_YELLOW == 6
+       curses.COLOR_WHITE == 7
+       '''
+    # Retrurn a random shape and the color    
+    return random.choice(shapes), random.randint(1, 6)
 
-def create_new_block(shapes):
-    '''Generates a shape and color for the block RANDOMLY'''
-    # Initialize the colors. 0 is reserved for black and white color pair
-    curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-    curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)
-    curses.init_pair(5, curses.COLOR_CYAN, curses.COLOR_BLACK)
-    curses.init_pair(6, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-    # Retrurn a random shape and the color
-    return random.choice(shapes), curses.color_pair(random.randint(1, 6))
-
-def draw_board(window, board):
+def draw_board(window: curses.window, board: List[List[Tuple[str, int | None]]]) -> None:
     '''
     Draws the board on the screen
     -----------------------------
     board[y][x][0] is the char
     board[y][x][1] is the color
     '''
-    for y in range(BOARD_HEIGHT): # Go through every row of the board
-        for x in range(BOARD_WIDTH): # Go through every column of the row
-            if board[y][x][0] == BOARD_CHAR:
-                window.addstr(y, x, BOARD_CHAR) # If it is not a block char, then no color
-            elif board[y][x][0] == BLOCK_CHAR:
-                window.addstr(y, x, BLOCK_CHAR, board[y][x][1]) # If it is a block char, then there will be color
+    for y, row in enumerate(board):
+        for x, (char, color) in enumerate(row):
+            if char == BLOCK_CHAR and color is not None:
+                window.addch(y, x, char, color)
+            else:
+                window.addch(y, x, char)
 
-def draw_score(window, score):
+def draw_score(window: curses.window, score: int) -> None:
     '''Draws the score board for the game'''
     height, width = window.getmaxyx() # Get the height, width of the window
     scr_text = f"Score: {score}" # Create the score text
-    y, x = (height // 2), (width // 2 - len(scr_text) // 2) # Calculate the y, x for the scr_text to go on the window
-    window.addstr(y, x, scr_text) # Print the scr_text on the window
+    window.addstr(height // 2, (width - len(scr_text)) // 2, scr_text) # Print the scr_text on the window
 
-def draw_instruction(window):
+def draw_instruction(window: curses.window) -> None:
     '''Draws the instructions'''
-    window.addstr(0, 0, 'Move right:') # Right
-    window.addstr(1, 0, 'RIGHT Arrow Key ->')
-    window.addstr(2, 0, '------------------')
-    window.addstr(3, 0, 'Move left:') # Left
-    window.addstr(4, 0, 'LEFT Arrow Key <-')
-    window.addstr(5, 0, '------------------')
-    window.addstr(6, 0, 'Rotate block:') # Rotate
-    window.addstr(7, 0, 'UP Arrow Key ^')
-    window.addstr(8, 0, '---------------')
-    window.addstr(9, 0, 'Drop block:') # Drop
-    window.addstr(10, 0, 'Space Bar |__|')
-    window.addstr(11, 0, '--------------')
-    window.addstr(12, 0, 'QUIT') # Quit
-    window.addstr(13, 0, 'Press q')
-    window.addstr(14, 0, '-------')
+    # All the instructions in a list of tuples
+    instructions = [
+        ('Move right:', 'RIGHT Arrow Key ->'),
+        ('Move left:', 'LEFT Arrow Key <-'),
+        ('Rotate block:', 'UP Arrow Key ^'),
+        ('Drop block:', 'Space Bar |__|'),
+        ('QUIT', 'Press q'),
+    ]
 
-def make_board_list(rows, cols, char):
+    for i, (title, desc) in enumerate(instructions):
+        # Each instruction should have a padding of 3 from each other
+        window.addstr(i * 3, 0, title)
+        window.addstr(i * 3 + 1, 0, desc) # Increase the y by 1 for the descripition
+        # Add dashed horizontal line for asthetics
+        if i < len(instructions) - 1:
+            window.addstr(y=i * 3 + 2, x=0, str='-' * max(len(title), len(desc)))
+
+def make_board_list(rows: int, cols: int, char: str) -> List[List[Tuple[str, None]]]:
     '''
     Makes the board data structure which is a 2D list
     -------------------------------------------------
     width = cols
     height = rows
     '''
-    board_data_list = []
-    # Create the board data structure
-    for _ in range(rows):
-        board_data_list.append([(char, None)] * cols) # (char, None); None is replacent for the color
-    return board_data_list
+    return [[(char, None) for _ in range(cols)] for _ in range(rows)]
 
-def rotate_block(shape):
+def rotate_block(shape: List[List[int]]) -> List[List[int]]:
     '''Rotates the block counter-clockwise'''
-    width, height = len(shape[0]), len(shape) # Get the height, width of the original block
-    # In one rotation the height will be the width and the width will be the height
-    new_block = [[None] * height for _ in range(width)] # Create a new block whose height will be width of the original block and vice versa
-    for col in range(width):
-        for row in range(height - 1, -1, -1): # Iterate from the last row of the original block
-            new_block[width - col - 1][row] = shape[row][col]
-    return new_block
+    return [list(row) for row in zip(*shape)][::-1]
 
-def draw_block(board, block, blocky, blockx, color):
-    '''Puts the block in the board data structure'''
-    # Update the landed blocks on the board
+def draw_block(board: List[List[Tuple[str, int | None]]], block: List[List[int]], blocky: int, blockx: int, color: int) -> List[List[Tuple[str, int | None]]]:
+    '''Draws the block on the board'''
+    # Create a copy of the board
+    new_board = [row[:] for row in board]
+    # Iterate through the block
     for row, part in enumerate(block):
         for col, piece in enumerate(part):
             if piece == 1:
-                board[blocky + row][blockx + col] = (BLOCK_CHAR, color)
-            elif piece == 0: # No need to put that on the board
-                continue
-    return board
+                new_board[blocky + row][blockx + col] = (BLOCK_CHAR, color)
+    return new_board
 
-def colliding(board, block, blocky, blockx):
-    '''Checks if the block is colliding with another block'''
+def colliding(board: List[List[Tuple[str, int | None]]], block: List[List[int]], blocky: int, blockx: int) -> bool:
+    '''Checks if there is any collision with other blocks'''
     for row, part in enumerate(block):
         for col, piece in enumerate(part):
             if piece == 1:
-                if board[blocky + row][blockx + col][0] == BOARD_CHAR: # No collision yet
-                    continue
-                elif board[blocky + row][blockx + col][0] == BLOCK_CHAR:
-                    # If there is a block char then there is a collision
+                board_y, board_x = blocky + row, blockx + col
+                if (board_y >= BOARD_HEIGHT or board_x < 0 or board_x >= BOARD_WIDTH or
+                    board[board_y][board_x][0] == BLOCK_CHAR):
                     return True
-            elif piece == 0:
-                continue
-    # If no collision is found, return False
     return False
 
-def drop_block(board, block, blocky, blockx, max_vertical):
+def drop_block(board: List[List[Tuple[str, int | None]]], block: List[List[int]], blocky: int, blockx: int, max_vertical: int) -> int:
+    '''Drops the block when space bar is hit'''
     y = blocky
-    while not colliding(board, block, y, blockx): # Keep increasing y until there is a collision
+    while y <= max_vertical and not colliding(board, block, y, blockx):
         y += 1
-        if y > max_vertical: # If y is greater than max_vertical then y is max_vertical
-            y = max_vertical
-            break
-    return y
+    return y - 1
 
-def score_and_clear(board, score):
-    '''Clears the rows and scores, if all the chars are BLOCK_CHAR'''
-    # Take note of which rows to clear
-    rows_to_be_cleared = []
-    for row_idx, row in enumerate(board):
-        if all(item[0] == BLOCK_CHAR for item in row):
-            rows_to_be_cleared.append(row_idx)
-    
-    # Clear the identified rows from the board
-    for row_idx in reversed(rows_to_be_cleared):
-        board.pop(row_idx)
-        # Insert a new empty row at the top
-        board.insert(0, [(BOARD_CHAR, None)] * BOARD_WIDTH)
+def score_and_clear(board: List[List[Tuple[str, int | None]]], score: int) -> Tuple[int, List[List[Tuple[str, int | None]]]]:
+    '''Clear the rows that are full and updates the score'''
+    # Create an empty row
+    empty_row = [(BOARD_CHAR, None) for _ in range(BOARD_WIDTH)]
+    # Create a new board with rows that are not filled yet
+    new_board = [row for row in board if not all(item[0] == BLOCK_CHAR for item in row)]
+    # The score is the difference between the original board height and new board height
+    cleared_rows = BOARD_HEIGHT - len(new_board)
+    # Update the board with cleared_rows numbered emtpy_rows and add the empty rows in the beginning
+    new_board = [empty_row[:] for _ in range(cleared_rows)] + new_board
+    return score + cleared_rows, new_board
 
-    # Increase the score based on the number of cleared rows
-    score += len(rows_to_be_cleared)
-
-    return score, board
-
-def is_board_full(board, block, blocky, blockx, color):
-    '''Returns a bool whether the board is filled with blocks or not'''
-    if all(item[0] == BOARD_CHAR for item in board[0]): # Check if first row is all BOARD_CHAR
-        return False
-    else:
-        if not colliding(board, block, blocky, blockx): # Check if the block deos not collide at (y, x) position
-            board = draw_block(board, block, blocky, blockx, color) # Put the block at (y, x) position
-            if all(item[0] == BOARD_CHAR for item in board[0]): # Check if the first row is all BOARD_CHAR
-                return False
-            else:
-                return True
-        else: # If it collides then board is full
-            return True
+def is_board_full(board: List[List[Tuple[str, int | None]]],
+                  block: List[List[int]], blocky: int, blockx: int) -> bool:
+    '''Checks if the board is full or not'''
+    return any(item[0] == BLOCK_CHAR for item in board[0]) or colliding(board, block, blocky, blockx)
 
 def main(stdscr):
     '''The preparatory part of the game'''
@@ -206,16 +148,15 @@ def main(stdscr):
     stdscr.nodelay(True) # No delaying in checking for user inputs
     stdscr.clear() # Clear the main window
 
-    # Get the height and width of the screen, also the center co-ordinates of the screen
+    # Get the height and width of the screen
     screen_height, screen_width = stdscr.getmaxyx()
-    screen_centery, screen_centerx = screen_height // 2, screen_width // 2
 
     # Tetris board window measurements
-    board_win_height, board_win_width = 21, 11 # I don't know why giving (20, 10) doesn't work.
-    board_win_y, board_win_x = (screen_centery - board_win_height // 2), (screen_centerx - board_win_width // 2) # Starting y, x for board_win
+    board_win_height, board_win_width = BOARD_HEIGHT + 1, BOARD_WIDTH + 1 # I don't know why giving (20, 10) doesn't work.
+    board_win_y, board_win_x = (screen_height - board_win_height) // 2, (screen_width - board_win_width) // 2 # Starting y, x for board_win
 
     # Score board window measurements
-    score_win_height, score_win_width = 2, 11 # Width same as board_win_width
+    score_win_height, score_win_width = 2, board_win_width # Width same as board_win_width
     score_win_y, score_win_x = (board_win_y - score_win_height - 1), board_win_x
 
     # Instruction window measurements
@@ -228,144 +169,105 @@ def main(stdscr):
 
     # Create all the windows
     board_win = curses.newwin(board_win_height, board_win_width, board_win_y, board_win_x) # Create the board window
-    board_win.nodelay(True)
     score_brd_win = curses.newwin(score_win_height, score_win_width, score_win_y, score_win_x) # Create the score board window
-    score_brd_win.nodelay(True)
     instr_win = curses.newwin(instr_win_height, instr_win_width, instr_win_y, instr_win_x) # Create the instruction window
-    instr_win.nodelay(True)
+
+    # Make sure there is no delay in every window
+    for win in (board_win, score_brd_win, instr_win):
+        win.nodelay(True)
 
     # Make the board data structure and the copy
     board_list = make_board_list(BOARD_HEIGHT, BOARD_WIDTH, BOARD_CHAR)
-    board_list_copy = []
     # Score
     score = 0
+
+    # Initialize every color
+    for i in range(1, 7):
+        curses.init_pair(i, i, curses.COLOR_BLACK)
+    
     # Game state
     game_active = True
-
     while game_active:
         '''Block generating part of the game'''
         # Create the block and color
         block, block_color = create_new_block(SHAPES)
-        y, x = 0, (BOARD_WIDTH // 2 - len(block[0]) // 2)
+        y, x = 0, (BOARD_WIDTH - len(block[0])) // 2
         # The maximum horizontal and vertical for the block
-        maximum_x = board_win_width - 1 - len(block[0])
-        maximum_y = board_win_height - 1 - len(block)
-        while True:
-            '''Main loop of the game'''
-            # If there is a copy, copy that shit. If there isn't make a new one
-            if board_list_copy:
-                board_list = copy.deepcopy(board_list_copy)
+        maximum_x = BOARD_WIDTH - len(block[0])
+        maximum_y = BOARD_HEIGHT - len(block)
 
-            # Check if the block collides with another block and the board is not full
-            if not is_board_full(board_list, block, y, x, block_color):
-                if not colliding(board_list, block, y, x):
-                    # Draw the block on the board_list
-                    board_list = draw_block(board_list, block, y, x, block_color)
-                elif colliding(board_list, block, y, x):
-                    board_list = draw_block(board_list, block, y - 1, x, block_color) # Don't know why but (y - 1) just works
-                    board_list_copy = copy.deepcopy(board_list) # If a block is colliding with another block, then it is another round
-                    break
-            else:
-                # Clear the score and instruction window and break out of the loop
+        while True:
+            # If board is full then, game is voer
+            if is_board_full(board_list, block, y, x):
                 game_active = False
-                score_brd_win.clear()
-                score_brd_win.refresh()
-                instr_win.clear()
-                instr_win.refresh()
+                score_brd_win.clear() # Clear the score board
+                score_brd_win.refresh() # Refresh the score board
+                instr_win.clear() # Clear the instruction window
+                instr_win.refresh() # Refresh the instruction window
                 break
 
-            # Update the score
-            if y == drop_block(board_list, block, y, x, maximum_y):
-                score, board_list = score_and_clear(board_list, score)
+            # Create a new temp_board every time through the loop for drawing the block
+            temp_board = draw_block(board_list, block, y, x, curses.color_pair(block_color))
 
-            # Draw the main game window
-            board_win.clear() # Clear the window
-            draw_board(board_win, board_list) # Draw the board on the window
-            board_win.refresh() # Refresh the window
-            # Draw the score board window
+            # Clear the board window and draw the board
+            board_win.clear()
+            draw_board(board_win, temp_board)
+            board_win.refresh()
+
+            # Clear the score board window and draw the score board
             score_brd_win.clear()
             draw_score(score_brd_win, score)
             score_brd_win.refresh()
-            # Draw the instruction window
+
+            # Clear the instruction window and draw the instructions
             instr_win.clear()
             draw_instruction(instr_win)
             instr_win.refresh()
-            # Refresh the stdscr
-            stdscr.refresh()
 
-            # Make the block move downward
-            y += 1
-            # Vertical calculations
-            if y <= maximum_y:
-                if board_list_copy:
-                    board_list = copy.deepcopy(board_list_copy)
-                else:
-                    board_list = make_board_list(BOARD_HEIGHT, BOARD_WIDTH, BOARD_CHAR)
-            if y > maximum_y:
-                board_list_copy = copy.deepcopy(board_list)
-                break
-
-            # Get the key inputs
+            # Get all the keystrokes
             key = stdscr.getch()
-            # Block movements
-            # Quit
+            # Exit if 'q' pressed
             if key == ord('q') or key == ord('Q'):
-                # Clear the score and instruction window and break out of the loop
                 game_active = False
-                score_brd_win.clear()
-                score_brd_win.refresh()
-                instr_win.clear()
-                instr_win.refresh()
+                score_brd_win.clear() # Clear the score board
+                score_brd_win.refresh() # Refresh the score board
+                instr_win.clear() # Clear the instruction window
+                instr_win.refresh() # Refresh the instruction window
                 break
-            # Move the block right -->
-            if key == curses.KEY_RIGHT and x <= maximum_x and y <= maximum_y and not colliding(board_list, block, y, x):
+            elif key == curses.KEY_RIGHT and x < maximum_x and not colliding(board_list, block, y, x + 1):
                 x += 1
-                if x > maximum_x:
-                    x = maximum_x
-                if colliding(board_list, block, y, x): # If increasing the x makes the block collide with another one, decrease it
-                    x -= 1
-            # Move the block left <--
-            if key ==  curses.KEY_LEFT and x >= 0 and y <= maximum_y and not colliding(board_list, block, y, x):
+            elif key == curses.KEY_LEFT and x > 0 and not colliding(board_list, block, y, x - 1):
                 x -= 1
-                if x < 0:
-                    x = 0
-                if colliding(board_list, block, y, x): # If decreasing the x makes the block collide with another one, increase it
-                    x += 1
-            # Rotate the block counter-clockwise
-            if key == curses.KEY_UP and (0 <= y < maximum_y) and (0 <= x <= maximum_x) and not colliding(board_list, block, y, x):
-                # First make a temporary block
-                temp_block = rotate_block(block)
-                # Get the maximum y and x for the rotated temporary block
-                maximum_x = board_win_width - 1 - len(temp_block[0])
-                maximum_y = board_win_height - 1 - len(temp_block)
-                # If the y, x is greater than the max value give it the max value
-                if y > maximum_y:
-                     y = maximum_y
-                if x > maximum_x:
-                    x = maximum_x
-                # Check if the temp block is colliding with any block
-                if not colliding(board_list, temp_block, y, x):
-                    # Copy that shit
-                    block = copy.deepcopy(temp_block)
-                    del temp_block # Delete the temporary one
-                else:
-                    del temp_block # Delete the temporary one because the block cannot be rotated
-            # Drop the block
-            if key == ord(' ') and (y < maximum_y):
-                y = drop_block(board_list, block, y, x, maximum_y) # Get the coordiante of where the block will drop
+            elif key == curses.KEY_UP:
+                rotated = rotate_block(block)
+                if x <= BOARD_WIDTH - len(rotated[0]) and not colliding(board_list, rotated, y, x):
+                    block = rotated
+                    maximum_x = BOARD_WIDTH - len(block[0])
+                    maximum_y = BOARD_HEIGHT - len(block)
+            elif key == ord(' '):
+                y = drop_block(board_list, block, y, x, maximum_y)
 
-            # Slow the program for smooth animation
+            # Update the y pos
+            y += 1
+
+            if y > maximum_y or colliding(board_list, block, y, x):
+                y -= 1
+                board_list = draw_block(board_list, block, y, x, curses.color_pair(block_color))
+                score, board_list = score_and_clear(board_list, score)
+                break
+            
+            # Sleep for some time to make the game realisitic
             time.sleep(LEVEL)
 
-    # If the game ends, show a text that says "GAME OVER!" and show the score
+    # Game over screen
     board_win.clear()
     board_win.addstr(board_win_height // 2, 0, 'GAME OVER!')
     board_win.refresh()
-    time.sleep(1) # Stop the program for a while to display the "GAME OVER!" text
+    time.sleep(1)
     board_win.clear()
-    draw_score(board_win, score) # Draw the score
+    draw_score(board_win, score)
     board_win.refresh()
-    time.sleep(0.5) # Pause for a little to show the score
+    time.sleep(0.5)
 
 if __name__ == "__main__":
     curses.wrapper(main)
